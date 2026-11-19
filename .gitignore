@@ -1,0 +1,13 @@
+# C++ / CMake
+build/
+cmake-build-*/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+
+# Python
+__pycache__/
+*.pyc
+.venv/
