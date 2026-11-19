@@ -3,11 +3,12 @@
 #include <gtest/gtest.h>
 
 #if defined(_MSC_VER) && !defined(__clang__)
-// MSVC reports C6326 for the constant switch in GoogleTest's assertion macros.
+// MSVC 会对 GoogleTest 断言宏中的常量 switch 报告 C6326。
 #pragma warning(push)
 #pragma warning(disable : 6326)
 #endif
 
+// 验证探针返回版本 1，并跨 C++ 接口原样保留中文及非 BMP 字符的 UTF-8 字节。
 TEST(AbiProbe, ReturnsVersionAndPreservesUtf8Bytes) {
     const std::string text = u8"书架\U0001F680";
     const auto result = markdownshelf::probe(text);
@@ -16,6 +17,7 @@ TEST(AbiProbe, ReturnsVersionAndPreservesUtf8Bytes) {
     EXPECT_EQ(result.text, text);
 }
 
+// 验证空输入仍返回有效的版本化结果，其中的文本为空。
 TEST(AbiProbe, PreservesEmptyText) {
     const auto result = markdownshelf::probe({});
 

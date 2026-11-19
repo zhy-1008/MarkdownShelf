@@ -1,4 +1,4 @@
-# C++ / CMake
+# C++ 与 CMake 构建产物
 build/
 cmake-build-*/
 .stage/
@@ -9,7 +9,7 @@ cmake-build-*/
 *.so
 *.pyd
 
-# Python
+# Python 运行环境与缓存
 __pycache__/
 *.pyc
 .venv/

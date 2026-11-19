@@ -41,4 +41,15 @@
 | REQ-P1.1-02 | §2、§2.3、§9.1、§10.2 | P1.1-02 | GoogleTest 经 CTest 执行。关闭绑定且禁用 CMake 查找 Python 后，独立核心仍可配置、编译、测试。核心无 Qt 依赖。 | [通过](../testing/P1.1_build_and_abi.md#结果与需求证据) |
 | REQ-P1.1-03 | §2.2、§2.3、§9.1、§10.2 | P1.1-03，关联 T18 的 C++/Python 部分 | 从当前暂存根导入真实扩展，验证版本化结果、空文本、中文、非 BMP 字符、错误入参和缺少扩展的导入失败。 | [通过](../testing/P1.1_build_and_abi.md#abi-与失败验证) |
 | REQ-P1.1-04 | §2.2、§2.3、§9.1 | P1.1-04 | 固定 clang-format 版本，一方代码通过格式检查。启用 /W4，CI 上一方警告按错误处理并运行 /analyze，覆盖 Debug 与 Release。用户补充要求 VS Code 的 clangd 使用实际编译数据库。 | [本机通过，托管 CI 待运行](../testing/P1.1_build_and_abi.md#clangd-工作区验证) |
-| REQ-P1.1-05 | §9.1、§10.1、§10.2 | P1.1-05 | 记录真实命令、版本、ABI、结果和复测，核对实现边界并交付 Deep 源码讲解与学习文档，等待用户验收。 | [等待验收](../development/P1.1_build_and_abi.md) |
+| REQ-P1.1-05 | §9.1、§10.1、§10.2 | P1.1-05 | 记录真实命令、版本、ABI、结果和复测，核对实现边界并交付 Deep 源码讲解与学习文档，等待用户验收。 | [已验收](../project/CURRENT_TASK.md#用户确认记录)，[学习文档](../development/P1.1_build_and_abi.md) |
+
+## P1.2 C++ SQLite 基础
+
+| 需求 ID | V4.0 章节 | 测试 ID | 验收断言 | 状态与证据 |
+| --- | --- | --- | --- | --- |
+| REQ-P1.2-01 | §2.1–2.4、§9.1、§10.2 | P1.2-01 | 官方 SQLite amalgamation 锁定版本和哈希，打开 FTS5 并静态编入核心。使用本地归档干净配置和构建，核心可在关闭绑定时独立测试，Debug 和 Release 均通过已有 ABI 回归。 | [本机通过](../testing/P1.2_sqlite_foundation.md#结果与需求证据) |
+| REQ-P1.2-02 | §2.3、§3.1、§3.3–3.4、§10.2 | P1.2-02，关联 T01 的资源释放 | C++ 独占管理连接和预编译语句，作用域退出及异常路径释放资源。验证中文路径、UTF-8 参数、只读打开、外键和有界等待。受信任的可写文件库启用 WAL 和 `synchronous=FULL`。 | [通过](../testing/P1.2_sqlite_foundation.md#结果与需求证据) |
+| REQ-P1.2-03 | §2.3、§3.3、§10.2 | P1.2-03 | 正常提交持久化。执行中异常、未提交离开作用域及提交失败均保持数据一致，释放锁后可以重新开启事务。 | [通过](../testing/P1.2_sqlite_foundation.md#结果与需求证据) |
+| REQ-P1.2-04 | §3.1、§3.3、§8.3、§10.2 | P1.2-04，关联 T11 的 schema 迁移 | 使用隔离测试库验证按版本顺序执行。每一步的 DDL、数据变更和 `user_version` 同事务提交。覆盖失败回滚、重跑、迁移序列缺项及较新 schema 拒绝写入。 | [通过](../testing/P1.2_sqlite_foundation.md#结果与需求证据) |
+| REQ-P1.2-05 | §2.1、§6.1–6.2、§10.2 | P1.2-05，关联 T05 的索引底座 | 真实 SQLite 连接建 FTS5 虚表，插入并通过绑定的 `MATCH` 查到预期行。验证按连接注册测试用自定义 tokenizer，重开连接后再次注册可正常查询。 | [通过](../testing/P1.2_sqlite_foundation.md#结果与需求证据) |
+| REQ-P1.2-06 | §9.1、§10.1、§10.2 | P1.2-06 | 记录实际工具链、SQLite 版本、编译选项、命令和测试结果，关联各 REQ。交付代码审查、Deep 源码讲解和学习文档，更新当前任务并提交验收。 | [等待验收](../testing/P1.2_sqlite_foundation.md#审查与未运行项)，[学习文档](../development/P1.2_sqlite_foundation.md) |

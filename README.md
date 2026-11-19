@@ -1,8 +1,8 @@
 # MarkdownShelf
 
-面向技术笔记的 Windows 离线 Markdown 文档库。当前开发入口为 [P1.1](docs/project/CURRENT_TASK.md)，正式需求见 [V4.0 设计规格](docs/specification/MarkdownShelf_Project_Design_v4.0.md)。
+面向技术笔记的 Windows 离线 Markdown 文档库。功能进度见[当前任务](docs/project/CURRENT_TASK.md)，正式需求见 [V4.0 设计规格](docs/specification/MarkdownShelf_Project_Design_v4.0.md)。
 
-## P1.1 构建与测试
+## 构建与测试
 
 在 VS Code 的 Windows x64 Developer PowerShell 中运行。需要 MSVC v143、Windows SDK、CMake 3.25 或更高版本、Ninja，以及带开发头文件和导入库的 CPython 3.12 x64。可在 VS Code 的命令提示符终端中运行 Visual Studio 安装目录下的 `VC\Auxiliary\Build\vcvarsall.bat x64 -vcvars_ver=14.44`，再启动 PowerShell 继承该环境。将下列版本核对和创建虚拟环境所用的 `python` 指向已核对的 CPython 3.12 x64。逐条执行，遇到失败先检查错误输出。
 
@@ -51,8 +51,8 @@ clang-format --dry-run --Werror @files
 
 ## 使用依赖缓存
 
-联网时，使用 CPython 3.12 x64 执行 `python -m pip download --require-hashes --only-binary=:all: -r requirements-dev.lock --dest build/deps/wheels` 准备 wheel。按 [CMakeLists.txt](CMakeLists.txt) 中的 URL 和 SHA-256 准备 `pybind11-3.0.1.tar.gz` 和 `googletest-1.16.0.tar.gz`，存入 `build/deps/archives`。
+联网时，使用 CPython 3.12 x64 执行 `python -m pip download --require-hashes --only-binary=:all: -r requirements-dev.lock --dest build/deps/wheels` 准备 wheel。按构建配置中的 URL 和 SHA-256 准备 `sqlite-amalgamation-3540100.zip`、`pybind11-3.0.1.tar.gz` 和 `googletest-1.16.0.tar.gz`，存入 `build/deps/archives`。SQLite 以 C 源码编入 C++ 静态核心，启用 FTS5。[CMakeLists.txt](CMakeLists.txt)
 
 无网时，用 `python -m pip install --no-index --find-links build/deps/wheels --require-hashes --only-binary=:all: -r requirements-dev.lock` 安装 Python 依赖。首次配置时加 `"-DMARKDOWNSHELF_DEPS_DIR=$((Resolve-Path build/deps/archives).Path)"`，CMake 会从本地归档提取并核对哈希。复验时可用 `-B` 选择新的构建目录，再用 `cmake --build <目录>` 和 `ctest --test-dir <目录>` 指向该目录。使用新的暂存前缀，并同步更新 `PYTHONPATH` 和导入断言。
 
-参见 [构建与 ABI 学习文档](docs/development/P1.1_build_and_abi.md)及[验证记录](docs/testing/P1.1_build_and_abi.md)。
+参见 [P1.1 构建与 ABI 学习文档](docs/development/P1.1_build_and_abi.md)、[P1.1 验证记录](docs/testing/P1.1_build_and_abi.md)、[P1.2 SQLite 学习文档](docs/development/P1.2_sqlite_foundation.md)和 [P1.2 验证记录](docs/testing/P1.2_sqlite_foundation.md)。

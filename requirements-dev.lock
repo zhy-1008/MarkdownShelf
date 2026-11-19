@@ -1,4 +1,4 @@
-# CPython 3.12 x64 on Windows. Hashes are for wheels from PyPI.
+# 适用于 Windows 上的 CPython 3.12 x64。哈希值对应 PyPI 上的 wheel 文件。
 clang-format==20.1.8 --hash=sha256:346ac8cab571eaba4d6b89dfa30fdbbc512db82a66ab0eeb1763cacc5977e325
 colorama==0.4.6 --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
 iniconfig==2.3.1 --hash=sha256:9121e2c1fdb355232495be3194c8dfe87ccc2d5dee45947b78e68f499790d7a7
