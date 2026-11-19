@@ -1,0 +1,52 @@
+name: Windows build and bindings
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [debug, release]
+    env:
+      PRESET: win-x64-${{ matrix.config }}
+      STAGE: ${{ github.workspace }}\.stage\${{ matrix.config }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Install locked development dependencies
+        run: |
+          python -m venv .venv
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          .venv/Scripts/python.exe -m pip install --require-hashes --only-binary=:all: -r requirements-dev.lock
+      - name: Check first-party C++ formatting
+        run: |
+          $files = (Get-ChildItem src/core, src/bindings, tests/cpp -Recurse -File -Include *.h, *.cpp).FullName
+          .venv/Scripts/clang-format.exe --dry-run --Werror @files
+      - name: Build, test and verify the staged extension
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VS_ROOT=%%i"
+          if not defined VS_ROOT exit /b 1
+          call "%VS_ROOT%\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.44 || exit /b 1
+          cmake --preset %PRESET% "-DPython_EXECUTABLE=%CD%\.venv\Scripts\python.exe" -DMARKDOWNSHELF_STRICT=ON || exit /b 1
+          cmake --build --preset %PRESET% || exit /b 1
+          ctest --preset %PRESET% || exit /b 1
+          cmake --install build/%PRESET% --prefix "%STAGE%" || exit /b 1
+          set "PYTHONPATH=%STAGE%;%CD%\src\python"
+          .venv\Scripts\python.exe -c "from pathlib import Path; import os, _markdownshelf_core as m; p = Path(m.__file__).resolve(); assert p.suffix == '.pyd' and p.parent == Path(os.environ['STAGE']).resolve(); print(p)" || exit /b 1
+          .venv\Scripts\python.exe -m pytest tests/python || exit /b 1
+          if /I "%PRESET%"=="win-x64-debug" (
+            cmake --preset win-x64-debug -B build/win-x64-core-only -DMARKDOWNSHELF_BUILD_BINDINGS=OFF -DCMAKE_DISABLE_FIND_PACKAGE_Python=ON -DMARKDOWNSHELF_STRICT=ON || exit /b 1
+            cmake --build build/win-x64-core-only || exit /b 1
+            ctest --test-dir build/win-x64-core-only --no-tests=error --output-on-failure || exit /b 1
+          )

@@ -1,0 +1,7 @@
+CompileFlags:
+  CompilationDatabase: build/win-x64-debug
+---
+If:
+  PathMatch: build/[^/]+/_deps/.*
+Index:
+  Background: Skip

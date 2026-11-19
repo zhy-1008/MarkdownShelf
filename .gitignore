@@ -1,13 +1,18 @@
 # C++ / CMake
 build/
 cmake-build-*/
+.stage/
 *.o
 *.obj
 *.exe
 *.dll
 *.so
+*.pyd
 
 # Python
 __pycache__/
 *.pyc
 .venv/
+.pytest_cache/
+
+.vscode/

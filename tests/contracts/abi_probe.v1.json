@@ -1,0 +1,9 @@
+{
+  "contract_version": 1,
+  "text_samples": {
+    "empty": "",
+    "chinese": "书架",
+    "non_bmp": "Markdown 书架 🚀",
+    "embedded_nul": "书\u0000架"
+  }
+}
