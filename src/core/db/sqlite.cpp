@@ -27,6 +27,15 @@ int open_flags(OpenMode mode) {
     throw std::invalid_argument("Invalid database open mode");
 }
 
+// 检查公开文件路径并返回 SQLite 使用的 UTF-8 表示，内存库仅由核心内部创建。
+std::string database_filename(const std::filesystem::path &path) {
+    auto filename = path.u8string();
+    if (filename.empty() || filename.find('\0') != std::string::npos || filename == ":memory:") {
+        throw std::invalid_argument("A valid database file path is required");
+    }
+    return filename;
+}
+
 // 为延迟事务或立即事务选择固定的 BEGIN 语句，拒绝未知模式。
 const char *begin_sql(TransactionMode mode) {
     switch (mode) {
@@ -60,19 +69,20 @@ void Connection::Close::operator()(sqlite3 *handle) const noexcept {
     sqlite3_close_v2(handle);
 }
 
-// 以 UTF-8 路径打开文件。先接管 SQLite 返回的句柄，再检查结果并配置连接。
-Connection::Connection(const std::filesystem::path &path, OpenMode mode, int busy_timeout_ms) {
-    const auto filename = path.u8string();
-    if (filename.empty() || filename.find('\0') != std::string::npos || filename == ":memory:") {
-        throw std::invalid_argument("A valid database file path is required");
-    }
+// 在 Windows 上使用 SQLite 内置长路径 VFS，以便主文件和辅助文件使用同一种路径规则。
+Connection::Connection(const std::filesystem::path &path, OpenMode mode, int busy_timeout_ms)
+    : Connection(database_filename(path), mode, busy_timeout_ms, "win32-longpath") {}
+
+// 先接管 SQLite 返回的句柄，再检查打开模式及连接设置。
+Connection::Connection(const std::string &filename, OpenMode mode, int busy_timeout_ms,
+                       const char *vfs) {
     if (busy_timeout_ms < 0) {
         throw std::invalid_argument("SQLite busy timeout must be nonnegative");
     }
 
     sqlite3 *opened = nullptr;
-    const int result = sqlite3_open_v2(filename.c_str(), &opened,
-                                       open_flags(mode) | SQLITE_OPEN_EXRESCODE, nullptr);
+    const int result =
+        sqlite3_open_v2(filename.c_str(), &opened, open_flags(mode) | SQLITE_OPEN_EXRESCODE, vfs);
     handle_.reset(opened);
     check_sqlite(result, "Open database");
     if (mode != OpenMode::read_only && sqlite3_db_readonly(handle(), "main") != 0) {

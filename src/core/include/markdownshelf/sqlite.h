@@ -79,6 +79,9 @@ class Connection {
     // 允许核心内部的迁移和 FTS5 适配代码访问原生句柄。
     friend struct SqliteAccess;
 
+    // 按已校验的 UTF-8 文件名初始化连接。内部调用方可指定 VFS 或使用内存库。
+    Connection(const std::string &filename, OpenMode mode, int busy_timeout_ms, const char *vfs);
+
     // 连接句柄的 RAII 删除器，负责在独占指针销毁时调用 SQLite 关闭接口。
     struct Close {
         // 关闭 handle 指向的连接，不从清理路径抛出异常。

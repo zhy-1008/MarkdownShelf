@@ -8,6 +8,11 @@ namespace markdownshelf::db {
 
 // 核心内部的句柄访问入口。迁移和 FTS5 借用句柄调用原生 API。
 struct SqliteAccess {
+    // 创建独立内存连接，用于对外部 JSON 执行固定 SQL 而不接触库文件。
+    static Connection memory_connection() {
+        return Connection(std::string(":memory:"), OpenMode::read_write_create, 0, nullptr);
+    }
+
     // 返回仍可用的连接句柄，句柄生命周期由传入的 connection 管理。
     static sqlite3 *handle(Connection &connection) {
         return connection.handle();

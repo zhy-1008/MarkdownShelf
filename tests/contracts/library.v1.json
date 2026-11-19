@@ -1,0 +1,20 @@
+{
+  "contract_version": 1,
+  "manifest": {
+    "format": "MarkdownShelfLibrary",
+    "format_version": 1
+  },
+  "library": {
+    "display_name": "技术 笔记📚",
+    "application_id": 1297303628,
+    "schema_version": 1
+  },
+  "errors": {
+    "invalid_name": {"code": "InvalidInput", "message_key": "library.invalid_name", "retryable": false},
+    "invalid_manifest": {"code": "UnsupportedFormat", "message_key": "library.invalid_manifest", "retryable": false},
+    "invalid_lease": {"code": "InvalidInput", "message_key": "library.invalid_lease", "retryable": false},
+    "future_schema": {"code": "SchemaTooNew", "message_key": "library.schema_too_new", "retryable": false},
+    "busy": {"code": "LibraryBusy", "message_key": "library.path_busy", "retryable": true},
+    "permission_denied": {"code": "IoError", "message_key": "library.permission_denied", "retryable": false}
+  }
+}

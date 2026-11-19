@@ -1,0 +1,10 @@
+#pragma once
+
+#include <string_view>
+
+namespace markdownshelf::db {
+
+// 保存由 CMake 从版本 1 SQL 原样嵌入的脚本。
+inline constexpr std::string_view initial_sql = R"shelf_sql(@markdownshelf_initial_sql@)shelf_sql";
+
+} // namespace markdownshelf::db

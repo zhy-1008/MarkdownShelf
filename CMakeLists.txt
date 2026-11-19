@@ -54,14 +54,23 @@ add_library(markdownshelf_sqlite OBJECT "${sqlite_source_dir}/sqlite3.c")
 target_compile_definitions(markdownshelf_sqlite PRIVATE SQLITE_ENABLE_FTS5)
 target_include_directories(markdownshelf_sqlite SYSTEM INTERFACE "${sqlite_source_dir}")
 
+# 嵌入初始迁移，使独立核心和暂存扩展使用同一份 SQL 源文件。
+set(initial_sql_path "${CMAKE_CURRENT_SOURCE_DIR}/src/core/migrations/0001_initial.sql")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${initial_sql_path}")
+file(READ "${initial_sql_path}" markdownshelf_initial_sql)
+configure_file(src/core/migrations/initial_sql.h.in generated/initial_sql.h @ONLY)
+
 add_library(markdownshelf_core STATIC
     src/core/abi_probe.cpp
     src/core/db/sqlite.cpp
     src/core/db/fts5.cpp
+    src/core/domain/library.cpp
+    src/core/domain/library_manifest.cpp
+    src/core/platform/library_files_win.cpp
     src/core/migrations/migrations.cpp)
-target_include_directories(markdownshelf_core PUBLIC src/core/include)
+target_include_directories(markdownshelf_core PUBLIC src/core/include PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated")
 target_compile_features(markdownshelf_core PUBLIC cxx_std_17)
-target_link_libraries(markdownshelf_core PRIVATE markdownshelf_sqlite)
+target_link_libraries(markdownshelf_core PRIVATE markdownshelf_sqlite Ole32)
 markdownshelf_compile_options(markdownshelf_core)
 
 if(MARKDOWNSHELF_BUILD_BINDINGS)
@@ -72,7 +81,7 @@ if(MARKDOWNSHELF_BUILD_BINDINGS)
         https://codeload.github.com/pybind/pybind11/tar.gz/refs/tags/v3.0.1
         741633da746b7c738bb71f1854f957b9da660bcd2dce68d71949037f0969d0ca)
 
-    pybind11_add_module(_markdownshelf_core NO_EXTRAS src/bindings/module.cpp)
+    pybind11_add_module(_markdownshelf_core NO_EXTRAS src/bindings/module.cpp src/bindings/library.cpp)
     target_link_libraries(_markdownshelf_core PRIVATE markdownshelf_core)
     markdownshelf_compile_options(_markdownshelf_core)
     install(TARGETS _markdownshelf_core LIBRARY DESTINATION . RUNTIME DESTINATION .)
@@ -88,7 +97,8 @@ if(BUILD_TESTING)
 
     add_executable(markdownshelf_core_tests
         tests/cpp/test_abi_probe.cpp
-        tests/cpp/test_sqlite.cpp)
+        tests/cpp/test_sqlite.cpp
+        tests/cpp/test_library.cpp)
     target_include_directories(markdownshelf_core_tests SYSTEM PRIVATE "${sqlite_source_dir}")
     target_link_libraries(markdownshelf_core_tests PRIVATE markdownshelf_core GTest::gtest_main)
     markdownshelf_compile_options(markdownshelf_core_tests)
