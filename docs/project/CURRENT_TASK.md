@@ -56,6 +56,8 @@ MSVC v143 下，Debug 和 Release 的默认构建与本地缓存干净构建各�
 
 P1.3 在 Debug 和 Release 各通过 25 项 CTest、39 项 pytest 和真实暂存扩展导入。关闭绑定的独立核心通过 25 项 CTest。三组均通过严格编译，格式检查通过。实测 DACL 权限、长路径与目录联接，验证两个进程的租约竞争、WAL 辅助文件行为和发布失败回滚。[P1.3 验证记录](../testing/P1.3_library_foundation.md)
 
+2026-11-25 修正托管工作流 #3 暴露的两个 C++ 路径断言。Debug、Release 和独立核心在正常路径与大小写别名下均各通过 25 项 CTest。Debug 和 Release 的暂存扩展导入及各 39 项 pytest 均通过。[路径断言复测](../testing/P1.3_library_foundation.md#windows-路径断言复测)
+
 ## 当前待处理事项与下一步
 
-等待用户确认 P1.3 验收。托管 GitHub Actions 未执行，其他未运行项见 P1.3 验证记录。
+等待用户确认 P1.3 验收。路径断言修正后的托管 GitHub Actions 待运行，其他未运行项见 P1.3 验证记录。

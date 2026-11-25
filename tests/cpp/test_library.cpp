@@ -73,8 +73,11 @@ std::int64_t scalar_integer(db::Connection &connection, std::string_view sql) {
 
 // 验证 Unicode 名称、成套产物、数据库初始元信息和重新打开。
 TEST_F(LibraryTest, CreatesAndReopensConsistentFolder) {
-    const auto created = Library::create(root_, u8"工程 资料📚");
-    EXPECT_EQ(root_ / fs::u8path(u8"工程 资料📚"), created.root);
+    const auto parent_alias = root_ / L".";
+    const auto created = Library::create(parent_alias, u8"工程 资料📚");
+    // 按实际目录校验规范化路径，使用 UTF-8 保留断言失败时的 Unicode 诊断。
+    const auto expected_root = fs::canonical(parent_alias / fs::u8path(u8"工程 资料📚"));
+    EXPECT_EQ(expected_root.u8string(), created.root.u8string());
     EXPECT_EQ(u8"工程 资料📚", created.display_name);
     EXPECT_EQ(1, created.format_version);
     EXPECT_EQ(1, created.schema_version);
@@ -111,7 +114,7 @@ TEST_F(LibraryTest, PublishesIntoEmptyTargetAndPreservesNonemptyTarget) {
     const auto target = root_ / "existing";
     ASSERT_TRUE(fs::create_directory(target));
     const auto info = Library::create(root_, "existing");
-    EXPECT_EQ(target, info.root);
+    EXPECT_EQ(fs::canonical(target).u8string(), info.root.u8string());
     EXPECT_FALSE(info.retained_directory);
     const auto user_file = target / "user.txt";
     std::ofstream(user_file) << "original";
